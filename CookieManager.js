@@ -31,3 +31,35 @@ class CookieManager {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     }
 }
+
+
+
+// var codeReader = null;
+// const codeReader = new ZXing.BrowserQRCodeReader();
+
+// const myObject = { key1: 'value1', key2: 'value2' };
+
+// Convert JSON object to string
+// const jsonString = JSON.stringify(myObject);
+
+
+// const cookieManager = new CookieManager();
+
+// Create a cookie
+// cookieManager.createCookie('BarcodeReader', jsonString, 7);
+
+// Read a cookie
+// const value = cookieManager.readCookie('BarcodeReader');
+// console.log(value); // Outputs the value of the "cookieName" cookie
+
+// Update a cookie
+// cookieManager.updateCookie('BarcodeReader', 'newCookieValue', 7);
+
+// Delete a cookie
+// cookieManager.deleteCookie('BarcodeReader');
+
+
+
+// console.log(baseurl)
+
+

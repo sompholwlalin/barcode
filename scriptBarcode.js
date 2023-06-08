@@ -1,34 +1,48 @@
 
 var baseurl = $("meta[name^=baseUrl]").attr("content");
 
-// var codeReader = null;
-// const codeReader = new ZXing.BrowserQRCodeReader();
+const dataProject = document.getElementById("data-project");
+const tableData = document.getElementById("table-data");
+const divCarmara = document.getElementById("div-carmara");
 
-const myObject = { key1: 'value1', key2: 'value2' };
+// Check for Windows
+if (navigator.platform.toUpperCase().indexOf('WIN') !== -1) {
+    dataProject.style.display = 'block';
+    tableData.style.display = 'block';
+    console.log('Operating System: Windows');
+}
 
-// Convert JSON object to string
-const jsonString = JSON.stringify(myObject);
+// Check for macOS
+if (navigator.platform.toUpperCase().indexOf('MAC') !== -1) {
+    dataProject.style.display = 'block';
+    tableData.style.display = 'block';
+    console.log('Operating System: macOS');
+}
 
+// Check for Linux
+if (navigator.platform.toUpperCase().indexOf('LINUX') !== -1) {
+    dataProject.style.display = 'block';
+    tableData.style.display = 'block';
+    console.log('Operating System: Linux');
+}
 
-const cookieManager = new CookieManager();
-
-// Create a cookie
-cookieManager.createCookie('BarcodeReader', jsonString, 7);
-
-// Read a cookie
-const value = cookieManager.readCookie('BarcodeReader');
-// console.log(value); // Outputs the value of the "cookieName" cookie
-
-// Update a cookie
-// cookieManager.updateCookie('BarcodeReader', 'newCookieValue', 7);
-
-// Delete a cookie
-// cookieManager.deleteCookie('BarcodeReader');
-
-
-
-// console.log(baseurl)
-
+// Check for iOS
+if (/iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+    dataProject.style.display = 'none';
+    tableData.style.display = 'none';
+    console.log('Operating System: iOS');
+}
+if (/iPad/.test(navigator.userAgent) && !window.MSStream) {
+    dataProject.style.display = 'block';
+    tableData.style.display = 'block';
+    console.log('Operating System: iPad');
+}
+// Check for Android
+if (/Android/.test(navigator.userAgent)) {
+    dataProject.style.display = 'none';
+    tableData.style.display = 'none';
+    console.log('Operating System: Android');
+}
 
 
 
@@ -37,44 +51,57 @@ const value = cookieManager.readCookie('BarcodeReader');
 
 
 const videoElement = document.getElementById("preview");
-// const selsect = document.getElementById("selsect");
-
-// selsect.addEventListener("change", function () {
-//     if (selsect.value === "BrowserBarcodeReader") {
-//         //   BrowserBarcodeReader();
-//     } else if (selsect.value === "BrowserQRCodeReader") {
-//         //   BrowserQRCodeReader();
-//     }
-// });
-
-// $('input[type=radio][name=selsect]').change(function () {
-//     if (this.value == 'BrowserBarcodeReader') {
-//         // ...
-//         alert('BrowserBarcodeReader')
-//     }
-//     else if (this.value == 'BrowserQRCodeReader') {
-//         // ...
-//         alert('BrowserQRCodeReader')
-
-//     }
-// });
-
-// Get the radio buttons and the result element
 const radioButtons = document.querySelectorAll('input[name="radios"]');
 const resultElement = document.getElementById('result');
+const inputBarcode = document.getElementById("input-barcode");
+const btnScanBarcode = document.getElementById("btn-scan-barcode");
+const showBarcode = document.getElementById("show-barcode");
 
-// Add event listeners to radio buttons
+inputBarcode.addEventListener('keydown', function (event) {
+    if (event.keyCode === 13 || event.key === 'Enter') {
+        checkBarCodeSubmit(this.value)
+    }
+});
+
+// เลือกกล้อง 
+const cameraListElement = document.getElementById("camara");
+navigator.mediaDevices.enumerateDevices()
+    .then(function (devices) {
+        let cameras = devices.filter(function (device) {
+            return device.kind === 'videoinput';
+        });
+
+        if (cameras.length == 0) {
+            divCarmara.style.display = 'none';
+            return false;
+        } else {
+            divCarmara.style.display = 'block';
+            carmaraBarCodeScan();
+        }
+
+        cameras.forEach(function (camera, index) {
+            let opt = document.createElement('option');
+            opt.value = camera.deviceId;
+            opt.innerHTML = 'เลือก : ' + camera.label;
+            camara.appendChild(opt);
+
+        });
+
+        camara.selectedIndex = cameras.length - 1;
+    })
+    .catch(function (error) {
+        console.error('Error enumerating devices.', error);
+    });
+
+
+
 radioButtons.forEach(function (radioButton) {
     radioButton.addEventListener('click', function () {
-        // Get the value of the selected radio button
         let selectedValue = this.value;
         if (selectedValue === 'แบบผังงาน') {
-            BrowserBarcodeReader();
-            // alter('textarea')
-        } else if (selectedValue === 'แบบรายชิน') {
-            BrowserQRCodeReader();
-            // alter('textareaddd')
-
+            carmaraBarCodeScan();
+        } else if (selectedValue === 'แบบรายชิ้น') {
+            carmaraBarCodeScan();
         }
         resultElement.textContent = 'เลือก : ' + selectedValue;
     });
@@ -82,38 +109,106 @@ radioButtons.forEach(function (radioButton) {
 
 
 
-let codeText = 'code';
 
-$.ajax({
-    url: baseurl + "test_somphol/api/getCode",
-    type: "POST",
-    data: {
-        codeReader: codeText
-    },
-    success: function (response) {
+async function carmaraBarCodeScan() {
+    const codeReader = new ZXing.BrowserBarcodeReader();
+    codeReader
+        .getVideoInputDevices()
+        .then((videoInputDevices) => {
 
-        let resulet = response ?? false; // emtpy return false 
-        if (resulet === false) {
-            alert("error");
+            if (videoInputDevices.length !== 0) {
+
+            }
+
+            if (videoInputDevices.length > 0) {
+
+                let tempCodeResult = null;
+                codeReader.decodeFromVideoDevice(
+                    camara.value,
+                    videoElement,
+                    (result, error) => {
+                        if (result) {
+
+                            // รอบแรกกำหนดให้ → มีค่าเท่ากัน
+                            if (tempCodeResult === null) {
+                                tempCodeResult = result.text;
+                            }
+
+                            if (tempCodeResult !== result.text) {
+                                //stadment code
+                            }
+
+                            inputBarcode.value = result.text;
+                            inputBarcode.focus();
+
+                            let codeText = inputBarcode.value;
+                            checkBarCodeSubmit(codeText)
+
+                        }
+
+                        if (error && !(error instanceof ZXing.NotFoundException)) {
+                            console.error(error);
+                        }
+                    }
+                );
+            } else {
+                console.error("No video input devices found");
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
+
+
+
+// เพิ่มข้อมูลลง
+function checkBarCodeSubmit(barcode) {
+
+    // let codeText = barcode;
+
+    $.ajax({
+        url: baseurl + "test_somphol/api/getCode",
+        type: "GET",
+        data: {
+            barcode: barcode
+        },
+        success: function (response) {
+
+            // let resulet = response ?? false; // emtpy return false 
+            // if (resulet === false) {
+            //     alert("error");
+            //     return false;
+            // }
+
+            // let obj = JSON.parse(resulet);
+
+            // $.each(obj, function (key, val) {
+            //     console.log(val);
+            // })
+            console.log(response);
+
+        }, error: function (response) {
+            console.error(response);
+            // alert("error");
             return false;
         }
-
-        let obj = JSON.parse(resulet);
-
-        $.each(obj, function (key, val) {
-            console.log(val);
-        })
-
-        // alter(codeText)
+    })
 
 
-        // alter(code)
-    }, error: function (response) {
-        console.error(response);
-        alert("error");
-        return false;
-    }
-})
+
+    showBarcode.innerHTML = "barcode : " + barcode;
+    console.log("CodeReader : " + barcode);
+
+    inputBarcode.focus();
+}
+
+function confirmBarCode(barcode) {
+
+
+}
+
+
 
 function altersw(code) {
     const swalWithBootstrapButtons = Swal.mixin({
@@ -153,137 +248,15 @@ function altersw(code) {
 }
 
 
+// เพิ่มข้อมูลลงใน Session Storage
+// sessionStorage.setItem('key', 'value');
 
-async function BrowserQRCodeReader() {
-    // console.log(decodeHints)
-    const codeReader = new ZXing.BrowserQRCodeReader();
-    codeReader
-        .getVideoInputDevices()
-        .then((videoInputDevices) => {
-            // console.log(videoInputDevices[0].deviceId)
-            const decodeFormats = [
-                ZXing.BarcodeFormat.UPC_A,
-                ZXing.BarcodeFormat.UPC_E,
-                ZXing.BarcodeFormat.EAN_8,
-                ZXing.BarcodeFormat.EAN_13,
-                ZXing.BarcodeFormat.CODE_39,
-                ZXing.BarcodeFormat.CODE_93,
-                ZXing.BarcodeFormat.CODE_128,
-                ZXing.BarcodeFormat.ITF,
-                ZXing.BarcodeFormat.CODABAR,
-                ZXing.BarcodeFormat.MSI,
-                ZXing.BarcodeFormat.RSS_14,
-                ZXing.BarcodeFormat.RSS_EXPANDED,
-                ZXing.BarcodeFormat.RSS_LIMITED,
-                ZXing.BarcodeFormat.UPC_EAN_EXTENSION,
-                ZXing.BarcodeFormat.QR_CODE,
-                ZXing.BarcodeFormat.DATA_MATRIX,
-                ZXing.BarcodeFormat.PDF_417,
-                ZXing.BarcodeFormat.AZTEC,
-            ];
-            if (videoInputDevices.length > 0) {
-                const constraints = {
-                    deviceId: videoInputDevices[0].deviceId,
-                    decodeFormats: decodeFormats,
-                };
+// อ่านข้อมูลจาก Session Storage
+// const valuecc = sessionStorage.getItem('key');
+// console.log(valuecc); // แสดงค่า 'value'
 
-                let tempCodeResult = null;
-                codeReader.decodeFromVideoDevice(
-                    undefined,
-                    videoElement,
-                    (result, error) => {
-                        if (result) {
-
-                            // รอบแรกกำหนดให้ → มีค่าเท่ากัน
-                            if (tempCodeResult === null) {
-                                tempCodeResult = result.text;
-                            }
-
-                            if (tempCodeResult !== result.text) {
-                                //stadment code
-                            }
+// ลบข้อมูลออกจาก Session Storage
+// sessionStorage.removeItem('key');
 
 
-                            let codeText = result.text;
-
-
-                            document.getElementById("show-barcode").innerHTML =
-                                "barcode : " + result.text;
-                            console.log("BrowserQRCodeReader : " + result.text);
-
-
-                        }
-
-                        if (error && !(error instanceof ZXing.NotFoundException)) {
-                            console.error(error);
-                        }
-                    },
-                    constraints
-                );
-            } else {
-                console.error("No video input devices found");
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-        });
-}
-
-function BrowserBarcodeReader() {
-    // console.log(decodeHints)
-    const codeReader = new ZXing.BrowserBarcodeReader();
-    const decodeFormats = [
-        ZXing.BarcodeFormat.UPC_A,
-        ZXing.BarcodeFormat.UPC_E,
-        ZXing.BarcodeFormat.EAN_8,
-        ZXing.BarcodeFormat.EAN_13,
-        ZXing.BarcodeFormat.CODE_39,
-        ZXing.BarcodeFormat.CODE_93,
-        ZXing.BarcodeFormat.CODE_128,
-        ZXing.BarcodeFormat.ITF,
-        ZXing.BarcodeFormat.CODABAR,
-        ZXing.BarcodeFormat.MSI,
-        ZXing.BarcodeFormat.RSS_14,
-        ZXing.BarcodeFormat.RSS_EXPANDED,
-        ZXing.BarcodeFormat.RSS_LIMITED,
-        ZXing.BarcodeFormat.UPC_EAN_EXTENSION,
-        ZXing.BarcodeFormat.QR_CODE,
-        ZXing.BarcodeFormat.DATA_MATRIX,
-        ZXing.BarcodeFormat.PDF_417,
-        ZXing.BarcodeFormat.AZTEC,
-    ];
-
-    codeReader
-        .getVideoInputDevices()
-        .then((videoInputDevices) => {
-            // console.log(videoInputDevices[0].deviceId)
-            if (videoInputDevices.length > 0) {
-                const constraints = {
-                    deviceId: videoInputDevices[0].deviceId,
-                    decodeFormats: decodeFormats,
-                };
-                codeReader.decodeFromVideoDevice(
-                    undefined,
-                    videoElement,
-                    (result, error) => {
-                        if (result) {
-                            document.getElementById("show-barcode").innerHTML =
-                                "barcode : " + result.text;
-                            // console.log(result.text);
-                            console.log("BrowserBarcodeReader : " + result.text);
-                        }
-
-                        if (error && !(error instanceof ZXing.NotFoundException)) {
-                            console.error(error);
-                        }
-                    },
-                    constraints
-                );
-            } else {
-                console.error("No video input devices found");
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-        });
-}
+// BrowserBarcodeReader();
