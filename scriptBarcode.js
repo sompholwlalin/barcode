@@ -7,22 +7,22 @@ const divCarmara = document.getElementById("div-carmara");
 
 // Check for Windows
 if (navigator.platform.toUpperCase().indexOf('WIN') !== -1) {
-    dataProject.style.display = 'block';
-    tableData.style.display = 'block';
+    dataProject.style.display = 'none';
+    tableData.style.display = 'none';
     console.log('Operating System: Windows');
 }
 
 // Check for macOS
 if (navigator.platform.toUpperCase().indexOf('MAC') !== -1) {
-    dataProject.style.display = 'block';
-    tableData.style.display = 'block';
+    dataProject.style.display = 'none';
+    tableData.style.display = 'none';
     console.log('Operating System: macOS');
 }
 
 // Check for Linux
 if (navigator.platform.toUpperCase().indexOf('LINUX') !== -1) {
-    dataProject.style.display = 'block';
-    tableData.style.display = 'block';
+    dataProject.style.display = 'none';
+    tableData.style.display = 'none';
     console.log('Operating System: Linux');
 }
 
@@ -169,24 +169,45 @@ function checkBarCodeSubmit(barcode) {
 
     $.ajax({
         url: baseurl + "test_somphol/api/getCode",
-        type: "GET",
+        type: "POST",
         data: {
             barcode: barcode
         },
+        dataType: "json",
         success: function (response) {
 
-            // let resulet = response ?? false; // emtpy return false 
-            // if (resulet === false) {
-            //     alert("error");
-            //     return false;
-            // }
+            if (Object.prototype.toString.call(response) !== '[object Object]') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'พบข้อผิดพลาด',
+                    text: 'สแกนใหม่ หรือรีเฟรชหน้า อีกครั้ง',
+                })
+                return false;
+            }
 
-            // let obj = JSON.parse(resulet);
 
-            // $.each(obj, function (key, val) {
-            //     console.log(val);
-            // })
-            console.log(response);
+            if (Object.keys(response).length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'บาร์โค้ดไม่ถูกต้อง : ' + barcode,
+                    text: 'โปรดลองสแกนใหม่อีกครั้ง',
+                })
+                return false;
+            }
+
+
+
+
+            let obj = response;
+            let SCAN_STATUS = obj.SCAN_STATUS;
+
+            if (obj.TYPE_SCAN === 'scheme') {
+                scheme(obj);
+            } else if (obj.TYPE_SCAN === 'job') {
+                job(obj);
+            }
+
+
 
         }, error: function (response) {
             console.error(response);
@@ -203,49 +224,137 @@ function checkBarCodeSubmit(barcode) {
     inputBarcode.focus();
 }
 
-function confirmBarCode(barcode) {
+function confirmBarCode(object) {
+
+    let BARCODE_TEXT = object.BARCODE_TEXT;
+    let TYPE_SCAN = object.TYPE_SCAN;
+    let PJ_CODE = object.PJ_CODE;
+    let PD_CODE = object.PD_CODE;
+    let N_MF_CODE = object.N_MF_CODE;
+    let PIT_BARCODE_2 = object.PIT_BARCODE_2;
 
 
+    $.ajax({
+        url: baseurl + "test_somphol/api/confirmBarCode",
+        type: "POST",
+        data: {
+            PIT_BARCODE_2: PIT_BARCODE_2,
+            TYPE_SCAN: TYPE_SCAN,
+            barcode: BARCODE_TEXT,
+            PJ_CODE: PJ_CODE,
+            PD_CODE: PD_CODE,
+            N_MF_CODE: N_MF_CODE
+        },
+        // dataType: "json",
+        success: function (response) {
+            console.log(response);
+
+        }
+    });
+
+
+
+    // const swalWithBootstrapButtons = Swal.mixin({
+    //     customClass: {
+    //         confirmButton: 'btn btn-success m-2',
+    //         cancelButton: 'btn btn-danger m-2'
+    //     },
+    //     buttonsStyling: false
+    // })
+    // swalWithBootstrapButtons.fire(
+    //     '',
+    //     'เบิกรายการชิ้นงานสำเร็จ',
+    //     'success'
+    // )
 }
 
+function scheme(object) {
+    let obj = object;
+    let SCAN_STATUS = obj.SCAN_STATUS;
+
+    if (SCAN_STATUS === 'F' || SCAN_STATUS === 'C') {
+        Swal.fire({
+            icon: 'success',
+            title: obj.TEXT_SCAN,
+            text: obj.MESSAGE,
+        })
+        return false; //
+    }
+
+    // console.log(object)
 
 
-function altersw(code) {
     const swalWithBootstrapButtons = Swal.mixin({
         customClass: {
-            confirmButton: 'btn btn-success',
-            cancelButton: 'btn btn-danger'
+            confirmButton: 'btn btn-success m-2',
+            cancelButton: 'btn btn-danger m-2'
         },
         buttonsStyling: false
     })
 
     swalWithBootstrapButtons.fire({
-        title: 'คุณแน่ใจหรือไม่!!',
-        text: "รหัสรายการ : " + code,
+        title: "<h2>โปรดอ่าน</h2>" + obj.MESSAGE,
+        text: "กดยืนยัน ระบบจะเบิกชิ้นงานทั้งหมดที่เหลือ หรือที่ยังไม่สแกน",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes, delete it!',
-        cancelButtonText: 'No, cancel!',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonText: 'ยืนยัน',
+
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            swalWithBootstrapButtons.fire(
-                '',
-                'เบิกรายการชิ้นงานสำเร็จ',
-                'success'
-            )
-        } else if (
-            /* Read more about handling dismissals below */
-            result.dismiss === Swal.DismissReason.cancel
-        ) {
-            // swalWithBootstrapButtons.fire(
-            //     'Cancelled',
-            //     'Your imaginary file is safe :)',
-            //     'error'
-            // )
+            confirmBarCode(object);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+        }
+    })
+    // console.log(obj);
+
+}
+
+function job(object) {
+    let obj = object;
+    let SCAN_STATUS = obj.SCAN_STATUS;
+    let SCAN_D_STATUS = obj.SCAN_D_STATUS;
+    let SCAN_M_STATUS = obj.SCAN_M_STATUS;
+
+    if (SCAN_D_STATUS === 'D' || SCAN_M_STATUS === 'D' || SCAN_STATUS === 'C') {
+        Swal.fire({
+            icon: 'success',
+            title: obj.TEXT_SCAN,
+            text: obj.MESSAGE,
+        })
+        return false; //
+    }
+
+    console.log(object)
+
+    // return 0;
+
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-success m-2',
+            cancelButton: 'btn btn-danger m-2'
+        },
+        buttonsStyling: false
+    })
+
+    swalWithBootstrapButtons.fire({
+        title: "<h2>โปรดอ่าน</h2>" + obj.MESSAGE,
+        text: "กดยืนยัน ชิ้นงานนี้จะถูกนำไปใช้งาน",
+        icon: 'warning',
+        showCancelButton: true,
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonText: 'ยืนยัน',
+
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            confirmBarCode(object);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
         }
     })
 }
+
 
 
 // เพิ่มข้อมูลลงใน Session Storage

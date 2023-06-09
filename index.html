@@ -106,25 +106,32 @@
         <div class="row ">
             <div class="col-lg p-3 align-middle">
 
-                <div class="d-flex justify-content-between mb-3">
-                    <div class="">
-                        <input type="radio" id="radio1" name="radios" value="แบบผังงาน">
-                        <label for="radio1">แบบผังงาน</label>
+                <div style="display: none;">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div class="">
+                            <input type="radio" id="radio1" name="radios" value="แบบผังงาน">
+                            <label for="radio1">แบบผังงาน</label>
+
+                        </div>
+                        <div class="">
+                            <input type="radio" id="radio2" name="radios" value="แบบรายชิ้น">
+                            <label for="radio2">แบบรายชิ้น</label>
+                        </div>
 
                     </div>
-                    <div class="">
-                        <input type="radio" id="radio2" name="radios" value="แบบรายชิ้น">
-                        <label for="radio2">แบบรายชิ้น</label>
-                    </div>
-
+                    <div id="result" class="pt-2">เลือก : - </div>
                 </div>
-                <div id="result" class="pt-2">เลือก : - </div>
 
 
+
+                <!-- value="20230531-00001-C000-0195-NMF0000037" -->
                 <div class="row ">
                     <div class="input-group mb-3">
                         <input id="input-barcode" type="text" class="form-control" placeholder="Enter Barcode"
-                            aria-label="Enter Barcode" autofocus="autofocus" value="20230531-00001-C000-0195-NMF0000037">
+                            aria-label="Enter Barcode" autofocus="autofocus"
+                            value="C000-0195-NMF0000037-W1-00089-R" 
+                            
+                            >
                         <button id="btn-scan-barcode" class="btn btn-outline-secondary" type="button"
                             onclick="checkBarCodeSubmit(document.getElementById('input-barcode').value)">สแกน</button>
                     </div>
