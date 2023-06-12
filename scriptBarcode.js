@@ -111,53 +111,8 @@ radioButtons.forEach(function (radioButton) {
 
 
 async function carmaraBarCodeScan() {
-    const codeReader = new ZXing.BrowserBarcodeReader();
-    codeReader
-        .getVideoInputDevices()
-        .then((videoInputDevices) => {
-
-            if (videoInputDevices.length !== 0) {
-
-            }
-
-            if (videoInputDevices.length > 0) {
-
-                let tempCodeResult = null;
-                codeReader.decodeFromVideoDevice(
-                    camara.value,
-                    videoElement,
-                    (result, error) => {
-                        if (result) {
-
-                            // รอบแรกกำหนดให้ → มีค่าเท่ากัน
-                            if (tempCodeResult === null) {
-                                tempCodeResult = result.text;
-                            }
-
-                            if (tempCodeResult !== result.text) {
-                                //stadment code
-                            }
-
-                            inputBarcode.value = result.text;
-                            inputBarcode.focus();
-
-                            let codeText = inputBarcode.value;
-                            checkBarCodeSubmit(codeText)
-
-                        }
-
-                        if (error && !(error instanceof ZXing.NotFoundException)) {
-                            console.error(error);
-                        }
-                    }
-                );
-            } else {
-                console.error("No video input devices found");
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-        });
+    BarcodeReader();
+    // QRCodeReader();
 }
 
 
@@ -165,23 +120,25 @@ async function carmaraBarCodeScan() {
 // เพิ่มข้อมูลลง
 function checkBarCodeSubmit(barcode) {
 
-    // let codeText = barcode;
-
     $.ajax({
         url: baseurl + "test_somphol/api/getCode",
-        type: "POST",
+        type: "post",
         data: {
             barcode: barcode
         },
         dataType: "json",
         success: function (response) {
 
+
             if (Object.prototype.toString.call(response) !== '[object Object]') {
                 Swal.fire({
                     icon: 'error',
                     title: 'พบข้อผิดพลาด',
                     text: 'สแกนใหม่ หรือรีเฟรชหน้า อีกครั้ง',
+                    showConfirmButton: false,
+                    timer: 1500
                 })
+                inputBarcode.focus();
                 return false;
             }
 
@@ -191,28 +148,51 @@ function checkBarCodeSubmit(barcode) {
                     icon: 'warning',
                     title: 'บาร์โค้ดไม่ถูกต้อง : ' + barcode,
                     text: 'โปรดลองสแกนใหม่อีกครั้ง',
+                    showConfirmButton: false,
+                    timer: 1500
                 })
+                inputBarcode.value = '';
+                inputBarcode.focus();
                 return false;
             }
-
 
 
 
             let obj = response;
             let SCAN_STATUS = obj.SCAN_STATUS;
 
-            if (obj.TYPE_SCAN === 'scheme') {
-                scheme(obj);
-            } else if (obj.TYPE_SCAN === 'job') {
-                job(obj);
+
+            if (obj.status_msg === 'warning') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: obj.MESSAGE,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                inputBarcode.value = '';
+                inputBarcode.focus();
+                return false;
             }
 
 
 
-        }, error: function (response) {
-            console.error(response);
-            // alert("error");
-            return false;
+
+            // if()
+
+            if (obj.TYPE_SCAN === 'scheme') {
+                scheme(obj);
+                inputBarcode.focus();
+            } else if (obj.TYPE_SCAN === 'job') {
+                job(obj);
+                inputBarcode.focus();
+            }
+
+
+
+        }, error: function () {
+            console.log('error processing')
+            inputBarcode.focus();
+            return 0;
         }
     })
 
@@ -245,27 +225,67 @@ function confirmBarCode(object) {
             PD_CODE: PD_CODE,
             N_MF_CODE: N_MF_CODE
         },
-        // dataType: "json",
+        dataType: "json",
         success: function (response) {
-            console.log(response);
+            // console.log(response);
+            if (Object.prototype.toString.call(response) !== '[object Object]') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'พบข้อผิดพลาด',
+                    text: 'สแกนใหม่ หรือรีเฟรชหน้า อีกครั้ง',
+                })
+                inputBarcode.focus();
+                return false;
+            }
+
+
+            if (Object.keys(response).length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'บาร์โค้ดไม่ถูกต้อง : ' + barcode,
+                    text: 'โปรดลองสแกนใหม่อีกครั้ง',
+                })
+                inputBarcode.focus();
+                return false;
+            }
+
+            let obj = response;
+
+            if (obj.status === 'success') {
+                Swal.fire({
+                    icon: 'success',
+                    title: obj.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                inputBarcode.focus();
+                inputBarcode.value = '';
+
+            } else if (obj.status === 'error') {
+                Swal.fire({
+                    icon: 'error',
+                    title: obj.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                inputBarcode.focus();
+
+            } else if (obj.status === 'warning') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: obj.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                inputBarcode.focus();
+            }
+
 
         }
     });
 
 
 
-    // const swalWithBootstrapButtons = Swal.mixin({
-    //     customClass: {
-    //         confirmButton: 'btn btn-success m-2',
-    //         cancelButton: 'btn btn-danger m-2'
-    //     },
-    //     buttonsStyling: false
-    // })
-    // swalWithBootstrapButtons.fire(
-    //     '',
-    //     'เบิกรายการชิ้นงานสำเร็จ',
-    //     'success'
-    // )
 }
 
 function scheme(object) {
@@ -319,14 +339,14 @@ function job(object) {
 
     if (SCAN_D_STATUS === 'D' || SCAN_M_STATUS === 'D' || SCAN_STATUS === 'C') {
         Swal.fire({
-            icon: 'success',
+            icon: 'warning',
             title: obj.TEXT_SCAN,
             text: obj.MESSAGE,
         })
         return false; //
     }
 
-    console.log(object)
+    // console.log(object)
 
     // return 0;
 
@@ -356,6 +376,111 @@ function job(object) {
 }
 
 
+
+function BarcodeReader() {
+    const codeReader = new ZXing.BrowserBarcodeReader();
+    // codeReader = new ZXing.BrowserQRCodeReader();
+
+    codeReader
+        .getVideoInputDevices()
+        .then((videoInputDevices) => {
+
+            if (videoInputDevices.length !== 0) {
+
+            }
+
+            if (videoInputDevices.length > 0) {
+
+                let tempCodeResult = null;
+                codeReader.decodeFromVideoDevice(
+                    camara.value,
+                    videoElement,
+                    (result, error) => {
+                        if (result) {
+
+                            // รอบแรกกำหนดให้ → มีค่าเท่ากัน
+                            if (tempCodeResult === null) {
+                                tempCodeResult = result.text;
+                            }
+
+                            if (tempCodeResult !== result.text) {
+                                //stadment code
+                            }
+
+                            inputBarcode.value = result.text;
+                            inputBarcode.focus();
+
+                            let codeText = inputBarcode.value;
+                            checkBarCodeSubmit(codeText)
+
+                        }
+
+                        if (error && !(error instanceof ZXing.NotFoundException)) {
+                            console.error(error);
+                        }
+                    }
+                );
+            } else {
+                console.error("No video input devices found");
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
+
+
+function QRCodeReader() {
+    // const codeReader = new ZXing.BrowserBarcodeReader();
+    const BrowserQRCodeReader = new ZXing.BrowserQRCodeReader();
+
+    BrowserQRCodeReader
+        .getVideoInputDevices()
+        .then((videoInputDevices) => {
+
+            if (videoInputDevices.length !== 0) {
+
+            }
+
+            if (videoInputDevices.length > 0) {
+
+                let tempCodeResult = null;
+                BrowserQRCodeReader.decodeFromVideoDevice(
+                    camara.value,
+                    videoElement,
+                    (result, error) => {
+                        if (result) {
+
+                            // รอบแรกกำหนดให้ → มีค่าเท่ากัน
+                            if (tempCodeResult === null) {
+                                tempCodeResult = result.text;
+                            }
+
+                            if (tempCodeResult !== result.text) {
+                                //stadment code
+                            }
+
+                            inputBarcode.value = result.text;
+                            inputBarcode.focus();
+
+                            let codeText = inputBarcode.value;
+                            checkBarCodeSubmit(codeText)
+
+                        }
+
+                        if (error && !(error instanceof ZXing.NotFoundException)) {
+                            console.error(error);
+                        }
+                    }
+                );
+            } else {
+                console.error("No video input devices found");
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+}
 
 // เพิ่มข้อมูลลงใน Session Storage
 // sessionStorage.setItem('key', 'value');
