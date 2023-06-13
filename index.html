@@ -128,10 +128,7 @@
                 <div class="row ">
                     <div class="input-group mb-3">
                         <input id="input-barcode" type="text" class="form-control" placeholder="Enter Barcode"
-                            aria-label="Enter Barcode" autofocus="autofocus"
-                            value="C000-0195-NMF0000037-W1-00089-R" 
-                            
-                            >
+                            aria-label="Enter Barcode" autofocus="autofocus" >
                         <button id="btn-scan-barcode" class="btn btn-outline-secondary" type="button"
                             onclick="checkBarCodeSubmit(document.getElementById('input-barcode').value)">สแกน</button>
                     </div>
@@ -151,18 +148,15 @@
                     </div>
                 </div>
 
-
-
-
             </div>
             <div id="data-project" class="col-lg p-3 align-middle" style="display: none;">
                 <div class="card border-success mb-3">
                     <div class="card-header bg-transparent border-success">
                         <h6 class="card-title mb-0">JOB No</h6>
-                        <p class="card-text">000-0000-0000-000</p>
+                        <p class="card-text" id="JobNO">000-0000-0000-000</p>
                     </div>
                     <div class="card-body text-success">
-                        <h5 class="card-title m-0">โครงการ</h5>
+                        <h5 class="card-title m-0" id="JobNO">โครงการ</h5>
                         <p class="card-text">xxxxx-xxxx-xxxx</p>
                         <h5 class="card-title m-0">ผัง</h5>
                         <p class="card-text">xxxxx-xxxx-xxxx</p>
