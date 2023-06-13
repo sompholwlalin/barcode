@@ -9,8 +9,8 @@ const divCarmara = document.getElementById("div-carmara");
 
 // Check for Windows
 if (navigator.platform.toUpperCase().indexOf('WIN') !== -1) {
-    dataProject.style.display = 'none';
-    tableData.style.display = 'none';
+    dataProject.style.display = 'block';
+    tableData.style.display = 'block';
     // console.log('Operating System: Windows');
 }
 
@@ -111,8 +111,8 @@ radioButtons.forEach(function (radioButton) {
 
 
 async function carmaraBarCodeScan() {
-    BarcodeReader();
-    // QRCodeReader();
+    // BarcodeReader();
+    QRCodeReader();
 
 }
 
@@ -212,7 +212,7 @@ function checkBarCodeSubmit(barcode) {
 
 
 
-    showBarcode.innerHTML = "barcode : " + barcode;
+    showBarcode.innerHTML = "รหัสบาร์โค้ด : " + barcode;
     console.log("CodeReader : " + barcode);
 
     inputBarcode.focus();
