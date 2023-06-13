@@ -1,5 +1,7 @@
 
 var baseurl = $("meta[name^=baseUrl]").attr("content");
+// var baseurl = "http://devapps.lalinlive.com:8081/";
+
 
 const dataProject = document.getElementById("data-project");
 const tableData = document.getElementById("table-data");
@@ -9,44 +11,40 @@ const divCarmara = document.getElementById("div-carmara");
 if (navigator.platform.toUpperCase().indexOf('WIN') !== -1) {
     dataProject.style.display = 'none';
     tableData.style.display = 'none';
-    console.log('Operating System: Windows');
+    // console.log('Operating System: Windows');
 }
 
 // Check for macOS
 if (navigator.platform.toUpperCase().indexOf('MAC') !== -1) {
     dataProject.style.display = 'none';
     tableData.style.display = 'none';
-    console.log('Operating System: macOS');
+    // console.log('Operating System: macOS');
 }
 
 // Check for Linux
 if (navigator.platform.toUpperCase().indexOf('LINUX') !== -1) {
     dataProject.style.display = 'none';
     tableData.style.display = 'none';
-    console.log('Operating System: Linux');
+    // console.log('Operating System: Linux');
 }
 
 // Check for iOS
 if (/iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
     dataProject.style.display = 'none';
     tableData.style.display = 'none';
-    console.log('Operating System: iOS');
+    // console.log('Operating System: iOS');
 }
 if (/iPad/.test(navigator.userAgent) && !window.MSStream) {
     dataProject.style.display = 'block';
     tableData.style.display = 'block';
-    console.log('Operating System: iPad');
+    // console.log('Operating System: iPad');
 }
 // Check for Android
 if (/Android/.test(navigator.userAgent)) {
     dataProject.style.display = 'none';
     tableData.style.display = 'none';
-    console.log('Operating System: Android');
+    // console.log('Operating System: Android');
 }
-
-
-
-
 
 
 
@@ -56,10 +54,12 @@ const resultElement = document.getElementById('result');
 const inputBarcode = document.getElementById("input-barcode");
 const btnScanBarcode = document.getElementById("btn-scan-barcode");
 const showBarcode = document.getElementById("show-barcode");
-
+const qrCodeDiv = document.getElementById('qrcode');
 inputBarcode.addEventListener('keydown', function (event) {
     if (event.keyCode === 13 || event.key === 'Enter') {
         checkBarCodeSubmit(this.value)
+        // Get the element where the QR code will be rendered
+
     }
 });
 
@@ -113,6 +113,7 @@ radioButtons.forEach(function (radioButton) {
 async function carmaraBarCodeScan() {
     BarcodeReader();
     // QRCodeReader();
+
 }
 
 
@@ -128,6 +129,7 @@ function checkBarCodeSubmit(barcode) {
         },
         dataType: "json",
         success: function (response) {
+
 
 
             if (Object.prototype.toString.call(response) !== '[object Object]') {
@@ -189,12 +191,24 @@ function checkBarCodeSubmit(barcode) {
 
 
 
-        }, error: function () {
-            console.log('error processing')
+        }, error: function (ready) {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'ระบบตรวจพบข้อผิดพลาด',
+                text: json,
+                showConfirmButton: false,
+                timer: 1500
+            })
+
+            inputBarcode.value = '';
             inputBarcode.focus();
+
             return 0;
+
         }
     })
+
 
 
 
@@ -280,6 +294,21 @@ function confirmBarCode(object) {
                 inputBarcode.focus();
             }
 
+
+        }, error: function (ready) {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'ระบบตรวจพบข้อผิดพลาด',
+                text: json,
+                showConfirmButton: false,
+                timer: 1500
+            })
+
+            inputBarcode.value = '';
+            inputBarcode.focus();
+
+            return 0;
 
         }
     });
@@ -493,4 +522,4 @@ function QRCodeReader() {
 // sessionStorage.removeItem('key');
 
 
-// BrowserBarcodeReader();
+

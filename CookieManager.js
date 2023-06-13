@@ -32,6 +32,7 @@ class CookieManager {
     }
 }
 
+export default  CookieManager;
 
 
 // var codeReader = null;

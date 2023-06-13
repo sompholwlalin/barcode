@@ -1,0 +1,23 @@
+<html>
+<head>
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+</head>
+<body>
+    <div id="qrcode"></div>
+
+    <script>
+        // Get the element where the QR code will be rendered
+        const qrCodeDiv = document.getElementById('qrcode');
+
+        // Create a QRCode instance
+        const qrCode = new QRCode(qrCodeDiv, {
+            text: 'Hello, world!', // The content you want to encode as a QR code
+            width: 500, // The width of the QR code
+            height: 500 // The height of the QR code
+        });
+
+        // You can also dynamically change the QR code content later if needed
+        qrCode.makeCode('D002-0007-NMF0000002-B2-00003-L');
+    </script>
+</body>
+</html>

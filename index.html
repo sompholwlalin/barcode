@@ -15,7 +15,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="./ZXing.min.js"></script>
-    <script src="./CookieManager.js"></script>
+    <!-- <script src="./CookieManager.js"></script> -->
+    <!-- <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script> -->
 
 
     <style>
@@ -101,7 +102,7 @@
 
 <body>
     <section class="container mt-5 mb-5">
-        <h1>Barcode Scanner</h1>
+        <h1>เครื่องสแกนบาร์โค้ด</h1>
 
         <div class="row ">
             <div class="col-lg p-3 align-middle">
@@ -127,15 +128,61 @@
                 <!-- value="20230531-00001-C000-0195-NMF0000037" -->
                 <div class="row ">
                     <div class="input-group mb-3">
-                        <input id="input-barcode" type="text" class="form-control" placeholder="Enter Barcode"
-                            aria-label="Enter Barcode" autofocus="autofocus" >
-                        <button id="btn-scan-barcode" class="btn btn-outline-secondary" type="button"
+                        <input id="input-barcode" type="text" class=" input" placeholder="สแกนบาร์โค้ด"
+                            aria-label="สแกนบาร์โค้ด" autofocus="autofocus" style=" width:80% ;">
+                        <button id="btn-scan-barcode" class="btn  button" type="button" style=" width:20% ;"
                             onclick="checkBarCodeSubmit(document.getElementById('input-barcode').value)">สแกน</button>
                     </div>
 
+                    <style>
+                        .button {
+                            position: relative;
+                            top: 0%;
+                            background-color: #0a0a23;
+                            color: #fff;
+                            border: none;
+                            border-radius: 10px;
+                            padding: 15px;
+                            min-height: 30px;
+                            min-width: 120px;
+                        }
+
+                        .button:hover {
+                            background-color: #a0a0a0;
+                            transition: 0.7s;
+                            border-radius: 10px;
+                            padding: 15px;
+                            border: none;
+
+                        }
+
+                        .button:focus {
+                            outline-color: transparent;
+                            outline-style: solid;
+                            box-shadow: 0 0 0 4px #5a01a7;
+                        }
+
+                        .button:active {
+                            background-color: #ffbf00;
+                        }
+
+                        .input {
+                            position: relative;
+                            top: 0%;
+                            background-color: #dbdbeb;
+                            color: #000000;
+                            border: none;
+                            border-radius: 10px;
+                            padding: 15px;
+                            min-height: 30px;
+                            min-width: 120px;
+                        }
+                    </style>
                 </div>
 
-                <p id="show-barcode" class="pt-1">barcode :</p>
+                <p id="show-barcode" class="pt-1">รหัสบาร์โค้ด :</p>
+                <!-- <div id="qrcode" class="mb-2"></div> -->
+
                 <div id="div-carmara" style="display: none;">
                     <select name="camara" id="camara" class="form-select" onchange="carmaraBarCodeScan();">
                         <!-- <option value=""></option> -->
